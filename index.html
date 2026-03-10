@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Looi Wei Heng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="bg-overlay" aria-hidden="true"></div>
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+  <main class="panels" aria-label="Portfolio sections">
+    <section class="panel panel-main" data-panel>
+      <div class="panel-stage">
+        <div class="hero-copy">
+          <h1 class="hero-title" data-hero-title>LOOI WEI HENG</h1>
+          <p class="hero-subtitle" data-hero-subtitle>Penetration Tester</p>
+        </div>
+        <p class="scroll-hint" aria-hidden="true">Scroll down to continue</p>
+      </div>
+    </section>
+
+    <section class="panel panel-detail panel-about" data-panel data-detail>
+      <div class="panel-stage">
+        <div class="section-title-wrap">
+          <h2 class="section-title">ABOUT ME</h2>
+        </div>
+        <img class="about-avatar" src="me.webp" alt="profile photo" draggable="false">
+        <div class="section-body">
+          <p>I am Wei Heng, a Penetration Tester at Hacens Cybersecurity.</p>
+          <p>I conduct simulations and security assessments to identify vulnerabilities and misconfigurations in organisational defenses. I have experience ranging from private organisations to government entities.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-detail panel-cert" data-panel data-detail>
+      <div class="panel-stage">
+        <div class="section-title-wrap">
+          <h2 class="section-title">CERTIFICATIONS</h2>
+        </div>
+        <div class="cert-badges" aria-label="Certification badges">
+          <a href="https://www.credential.net/168ff59d-bc52-4cd0-b5ba-0dfd8dba9c34" target="_blank" rel="noopener noreferrer" aria-label="View OSCP credential">
+            <img class="cert-badge" src="badges/oscp.webp" alt="OSCP badge" draggable="false">
+          </a>
+          <a href="https://www.credly.com/badges/f971f537-97dd-4339-a976-3f2a5ef53ef3/linked_in_profile" target="_blank" rel="noopener noreferrer" aria-label="View CRT credential">
+            <img class="cert-badge" src="badges/crt.webp" alt="CRT badge" draggable="false">
+          </a>
+          <a href="https://academy.hackthebox.com/achievement/badge/edcdfbaa-4500-11ef-b18d-bea50ffe6cb4" target="_blank" rel="noopener noreferrer" aria-label="View CPTS credential">
+            <img class="cert-badge" src="badges/cpts.webp" alt="CPTS badge" draggable="false">
+          </a>
+        </div>
+        <div class="section-body">
+          <p>Fully certified to conduct security assessments, ensuring a high standard of expertise and professional practice. I specialise in Active Directory infrastructures and Web Applications.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-detail panel-contact" data-panel data-detail>
+      <div class="panel-stage">
+        <div class="section-body">
+          <h2 class="section-title-contact">FIND ME</h2>
+          <p>Need help in Cybersecurity? Please do approach me, I love doing what I do. I won't bite I promise.</p>
+          <p><a class="contact-email" href="mailto:weiheng.looi@thehacens.com">weiheng.looi@thehacens.com</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <p class="detail-footer" data-detail-footer aria-hidden="true">LOOI WEI HENG</p>
+
+  <script src="script.js"></script>
+</body>
+</html>
