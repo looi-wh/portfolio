@@ -26,6 +26,9 @@ const SNAP_MS_PER_VIEWPORT = 1200;
 const SNAP_LOCK_BUFFER_MS = 120;
 const SNAP_PROGRESS_BIAS = 0.14;
 const SNAP_VELOCITY_THRESHOLD = 0.2;
+const SECTION4_INDEX = 3;
+const LOOP_MS_PER_FRAME = 1000 / 18;
+const RETURN_SCRUB_MS = 260;
 
 let detailStarts = [];
 let panelAnchors = [];
@@ -48,6 +51,16 @@ let lastSnapAt = 0;
 let lastSnapDuration = SNAP_MIN_ANIMATION_MS;
 let snapAnimationFrame = 0;
 let snapAnimating = false;
+
+let playbackMode = "scrub";
+let loopFrameFloat = 0;
+let loopLastTime = 0;
+let loopDirection = -1;
+let returnStartFrame = 0;
+let returnTargetFrame = 0;
+let returnStartTime = 0;
+let playbackAnimationFrame = 0;
+let activeSectionIndex = -1;
 
 const frameStore = new Array(TOTAL_FRAMES);
 let currentFrame = 0;
@@ -218,8 +231,61 @@ function getNearestLoadedFrame(target) {
 function render() {
   const vh = lockedViewportHeight;
   const scrollY = window.scrollY;
+  const now = performance.now();
   const scrollProgress = getScrollProgress();
-  const target = Math.round(scrollProgress * (TOTAL_FRAMES - 1));
+  const scrollTargetFrame = Math.round(scrollProgress * (TOTAL_FRAMES - 1));
+  const sectionIndex = getSectionIndex(scrollY);
+  updateActiveSectionVisibility(sectionIndex);
+
+  if (sectionIndex === SECTION4_INDEX) {
+    if (playbackMode !== "loop") {
+      loopFrameFloat = currentFrame;
+      loopLastTime = now;
+      loopDirection = -1;
+      playbackMode = "loop";
+      ensurePlaybackAnimation();
+    }
+  } else if (playbackMode === "loop") {
+    returnStartFrame = loopFrameFloat;
+    returnTargetFrame = scrollTargetFrame;
+    returnStartTime = now;
+    playbackMode = "return";
+    ensurePlaybackAnimation();
+  } else if (playbackMode === "return") {
+    returnTargetFrame = scrollTargetFrame;
+  }
+
+  let target = scrollTargetFrame;
+
+  if (playbackMode === "loop") {
+    const elapsed = Math.max(now - loopLastTime, 0);
+    loopFrameFloat += (elapsed / LOOP_MS_PER_FRAME) * loopDirection;
+
+    const maxFrame = TOTAL_FRAMES - 1;
+    while (loopFrameFloat > maxFrame || loopFrameFloat < 0) {
+      if (loopFrameFloat > maxFrame) {
+        loopFrameFloat = maxFrame - (loopFrameFloat - maxFrame);
+        loopDirection = -1;
+      } else if (loopFrameFloat < 0) {
+        loopFrameFloat = -loopFrameFloat;
+        loopDirection = 1;
+      }
+    }
+
+    loopLastTime = now;
+    target = clamp(Math.round(loopFrameFloat), 0, TOTAL_FRAMES - 1);
+  } else if (playbackMode === "return") {
+    const progress = clamp((now - returnStartTime) / RETURN_SCRUB_MS, 0, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const frame = returnStartFrame + (returnTargetFrame - returnStartFrame) * eased;
+    target = clamp(Math.round(frame), 0, TOTAL_FRAMES - 1);
+
+    if (progress >= 1) {
+      playbackMode = "scrub";
+      target = scrollTargetFrame;
+    }
+  }
+
   currentFrame = target;
 
   const frameIndex = getNearestLoadedFrame(target);
@@ -304,6 +370,22 @@ function render() {
   ticking = false;
 }
 
+function ensurePlaybackAnimation() {
+  if (playbackAnimationFrame) return;
+
+  const tick = () => {
+    if (playbackMode === "scrub") {
+      playbackAnimationFrame = 0;
+      return;
+    }
+
+    requestRender();
+    playbackAnimationFrame = window.requestAnimationFrame(tick);
+  };
+
+  playbackAnimationFrame = window.requestAnimationFrame(tick);
+}
+
 function requestRender() {
   if (ticking) return;
   ticking = true;
@@ -342,6 +424,16 @@ function getSectionProgress(scrollY, index) {
   const start = panelAnchors[index] ?? 0;
   const end = index < panelAnchors.length - 1 ? panelAnchors[index + 1] : start + lockedViewportHeight;
   return clamp((scrollY - start) / Math.max(end - start, 1), 0, 1);
+}
+
+function updateActiveSectionVisibility(sectionIndex) {
+  if (sectionIndex === activeSectionIndex) return;
+
+  for (let i = 0; i < panels.length; i += 1) {
+    panels[i].classList.toggle("is-current", i === sectionIndex);
+  }
+
+  activeSectionIndex = sectionIndex;
 }
 
 function pickSnapTarget(scrollY) {

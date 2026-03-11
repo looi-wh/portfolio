@@ -83,6 +83,10 @@ body {
   scroll-snap-stop: always;
 }
 
+.panel:not(.is-current) .panel-stage > * {
+  display: none !important;
+}
+
 .panel-stage {
   position: sticky;
   top: 0;
